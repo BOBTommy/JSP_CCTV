@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.io.BufferedReader" %>
 <%@ page import="java.io.InputStreamReader" %>
@@ -9,7 +9,7 @@
 	try{
 	String query = "서울마포구상암동1601";
 	query = new String(query.getBytes(),"EUC-KR");
-	URL xmlURL = new URL("http://map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&encoding=euc-kr&query="+query);
+	URL xmlURL = new URL("http://map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&query="+query);
 	HttpURLConnection xmlCon = (HttpURLConnection) xmlURL.openConnection();
 	xmlCon.setDoOutput(true);
 	xmlCon.setRequestMethod("POST");
@@ -47,7 +47,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
 		<title>CCTV Map mapping using Naver OPEN API</title>
 		<script type="text/javascript" src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=f98d021402efd46e873691f507de1fb1"></script>
 		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js" ></script>
@@ -84,31 +84,20 @@
 					return false;
 				}
 
-				$.get("http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&coord=latlng&query=서울시마포구상암동1603",
-					function(data,status){
-					alert("Data :" + data + " \nStatus: " + status);
-				});
+				$.ajax({
 
-			/*	$.ajax({
-
-					uri : "http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&query=경기도성남시정자1동25-1"
-					//url : "http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&&coord=latlng&query=서울시마포구상암동1601"
+					url : "naverXMLPage.jsp?query=" + searchText 
 					, type : "GET"
 					, dataType : "xml"
-					, beforeSend:function(x){
-						if(x && x.overrideMimeType) {
-							x.overrideMimeType("application/xml;charset=UTF-8");
-						}
-					}
 					, success : function(result){
-						alert("Success");
-						//var item = result.getElementsByTagName("item");
+						var total = result.getElementsByTagName("total");
+						alert("TEXT");
 					}
 					, error : function(x,e){
 						alert(e);
 					}
 
-				});*/
+				});
 			}
 
 			function getXMLHttpRequest(){
