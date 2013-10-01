@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+=======
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+>>>>>>> 5e0b3b0b7f5a49893979e8fc7fd5eca2a0c1f9d3
 <%@ page import="java.util.Date" %>
 <%@ page import="java.io.BufferedReader" %>
 <%@ page import="java.io.InputStreamReader" %>
@@ -7,7 +11,7 @@
 <%@ page import="java.util.StringTokenizer" %>
 <%
 	try{
-	String query = "¼­¿ï¸¶Æ÷±¸»ó¾Ïµ¿1601";
+	String query = "ï¿½ï¿½ï¿½ï¸¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½1601";
 	query = new String(query.getBytes(),"EUC-KR");
 	URL xmlURL = new URL("http://map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&query="+query);
 	HttpURLConnection xmlCon = (HttpURLConnection) xmlURL.openConnection();
@@ -68,7 +72,7 @@
 				var searchText = $("#cctvTaxi").val();
 				alert(searchText);
 				if(checkForm(searchText)){
-					alert("°Ë»ö¾î¸¦ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
+					alert("ï¿½Ë»ï¿½ï¿½î¸¦ ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ï¿½ï¿½.");
 					return false;
 				}
 			}
@@ -80,13 +84,25 @@
 			function getNaverText(){
 				var searchText = $("#naverMap").val();
 				if(checkForm(searchText)){
-					alert("°Ë»ö¾î¸¦ ÀÔ·ÂÇØ ÁÖ¼¼¿ä.");
+					alert("ï¿½Ë»ï¿½ï¿½î¸¦ ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ï¿½ï¿½.");
 					return false;
 				}
 
+<<<<<<< HEAD
 				$.ajax({
 
 					url : "naverXMLPage.jsp?query=" + searchText 
+=======
+				$.get("http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&coord=latlng&query=ï¿½ï¿½ï¿½ï¿½ï¿½Ã¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½1603",
+					function(data,status){
+					alert("Data :" + data + " \nStatus: " + status);
+				});
+
+			/*	$.ajax({
+
+					uri : "http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&query=ï¿½ï¿½ï¿½âµµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½25-1"
+					//url : "http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&&coord=latlng&query=ï¿½ï¿½ï¿½ï¿½ï¿½Ã¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½1601"
+>>>>>>> 5e0b3b0b7f5a49893979e8fc7fd5eca2a0c1f9d3
 					, type : "GET"
 					, dataType : "xml"
 					, success : function(result){
@@ -109,22 +125,22 @@
 	<body>
 		<table>
 			<tr>
-				<td id="topTable"><input type="button" id="addCCTV" value="CCTV Ãß°¡" /></td>
-				<td id="topTable"><input type="button" id="addTaxi" value="ÅÃ½Ã Ãß°¡" /></td>
-				<td id="topTable"><input type="button" id="modTaxi" value="ÅÃ½Ã ¼öÁ¤" /></td>
+				<td id="topTable"><input type="button" id="addCCTV" value="CCTV ï¿½ß°ï¿½" /></td>
+				<td id="topTable"><input type="button" id="addTaxi" value="ï¿½Ã½ï¿½ ï¿½ß°ï¿½" /></td>
+				<td id="topTable"><input type="button" id="modTaxi" value="ï¿½Ã½ï¿½ ï¿½ï¿½ï¿½ï¿½" /></td>
 			</tr>
 		</table>
 
 		<table>
 		<tr>
-			<td>CCTV / ÅÃ½Ã °Ë»ö <input type="text" id='cctvTaxi' value="" /></td>
+			<td>CCTV / ï¿½Ã½ï¿½ ï¿½Ë»ï¿½ <input type="text" id='cctvTaxi' value="" /></td>
 			<td><form name="cctvForm" method="post" action="" onsubmit="getCctvText(); return false;" >
-				<input type="submit" id="searchTextBtn" value="°Ë»ö" /></form></td>
+				<input type="submit" id="searchTextBtn" value="ï¿½Ë»ï¿½" /></form></td>
 		</tr>
 		<tr>
-			<td><p>³×ÀÌ¹ö Áöµµ °Ë»ö <input type="text" id="naverMap" value = "" /></p></td>
+			<td><p>ï¿½ï¿½ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½ <input type="text" id="naverMap" value = "" /></p></td>
 			<td><form name="naverForm" method="post" action="" onsubmit="getNaverText(); return false;">
-				<input type="submit" id="searchMapBtn" value="°Ë»ö" /></form></td>
+				<input type="submit" id="searchMapBtn" value="ï¿½Ë»ï¿½" /></form></td>
 		</tr>
 	</table>
 
