@@ -23,13 +23,9 @@
 				var searchText = $("#cctvTaxi").val();
 				alert(searchText);
 				if(checkForm(searchText)){
-					alert("Success");
+					alert("No input");
 					return false;
 				}
-			}
-
-			function tmp(){
-				alert("hello");
 			}
 
 			function getNaverText(){
@@ -47,9 +43,10 @@
 					, type : "GET"
 					, dataType : "xml"
 					, success : function(result){
-						alert(result);
-						//var total = result.getElementsByTagName("total");
-						//alert("TOTAL : "+total);
+						$(result).find('geocode').each(function(){
+							var total = $(this).find("total").text();
+							alert("TOTAL : " + total);
+						});
 					}
 					, error : function(x,e){
 						//alert(result);
