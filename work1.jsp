@@ -1,57 +1,8 @@
-<<<<<<< HEAD
-<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
-=======
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
->>>>>>> 5e0b3b0b7f5a49893979e8fc7fd5eca2a0c1f9d3
-<%@ page import="java.util.Date" %>
-<%@ page import="java.io.BufferedReader" %>
-<%@ page import="java.io.InputStreamReader" %>
-<%@ page import="java.net.HttpURLConnection" %>
-<%@ page import="java.net.URL" %>
-<%@ page import="java.util.StringTokenizer" %>
-<%
-	try{
-	String query = "���︶�������ϵ�1601";
-	query = new String(query.getBytes(),"EUC-KR");
-	URL xmlURL = new URL("http://map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&query="+query);
-	HttpURLConnection xmlCon = (HttpURLConnection) xmlURL.openConnection();
-	xmlCon.setDoOutput(true);
-	xmlCon.setRequestMethod("POST");
-
-	int len = xmlCon.getContentLength();
-	String inputStr ="";
-	if(len > 0){
-		BufferedReader br = new BufferedReader(new InputStreamReader(xmlCon.getInputStream(),"EUC-KR"));
-		int i = len;
-		String inputLine;
-		while( (inputLine = br.readLine()) != null ){
-			inputStr += inputLine;
-		}
-		br.close();
-	}else
-	{
-		out.println("There is no connection");
-	}
-	
-	String x1="";
-	String y1="";
-
-	if( inputStr.indexOf("</item>") > -1)
-	{
-		x1 = inputStr.substring( inputStr.indexOf("<x>")+3, inputStr.indexOf("</x>") );
-		y1 = inputStr.substring( inputStr.indexOf("<y>")+3, inputStr.indexOf("</y>") );
-		//out.println("x1 : "+x1+", y1 : "+y1);
-	}else{
-		out.println("We cannot find location");
-	}
-		
-	}catch(Exception e){}
-%>
-
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>CCTV Map mapping using Naver OPEN API</title>
 		<script type="text/javascript" src="http://openapi.map.naver.com/openapi/naverMap.naver?ver=2.0&key=f98d021402efd46e873691f507de1fb1"></script>
 		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js" ></script>
@@ -72,7 +23,7 @@
 				var searchText = $("#cctvTaxi").val();
 				alert(searchText);
 				if(checkForm(searchText)){
-					alert("�˻�� �Է��� �ּ���.");
+					alert("Success");
 					return false;
 				}
 			}
@@ -84,32 +35,24 @@
 			function getNaverText(){
 				var searchText = $("#naverMap").val();
 				if(checkForm(searchText)){
-					alert("�˻�� �Է��� �ּ���.");
+					alert("No input");
 					return false;
 				}
-
-<<<<<<< HEAD
+				
+				alert("naverXMLPage.jsp?query=" + searchText);
+				
 				$.ajax({
-
+					
 					url : "naverXMLPage.jsp?query=" + searchText 
-=======
-				$.get("http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&coord=latlng&query=�����ø��������ϵ�1603",
-					function(data,status){
-					alert("Data :" + data + " \nStatus: " + status);
-				});
-
-			/*	$.ajax({
-
-					uri : "http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&query=���⵵����������1��25-1"
-					//url : "http://openapi.map.naver.com/api/geocode.php?key=f98d021402efd46e873691f507de1fb1&&coord=latlng&query=�����ø��������ϵ�1601"
->>>>>>> 5e0b3b0b7f5a49893979e8fc7fd5eca2a0c1f9d3
 					, type : "GET"
 					, dataType : "xml"
 					, success : function(result){
-						var total = result.getElementsByTagName("total");
-						alert("TEXT");
+						alert(result);
+						//var total = result.getElementsByTagName("total");
+						//alert("TOTAL : "+total);
 					}
 					, error : function(x,e){
+						//alert(result);
 						alert(e);
 					}
 
@@ -125,46 +68,24 @@
 	<body>
 		<table>
 			<tr>
-				<td id="topTable"><input type="button" id="addCCTV" value="CCTV �߰�" /></td>
-				<td id="topTable"><input type="button" id="addTaxi" value="�ý� �߰�" /></td>
-				<td id="topTable"><input type="button" id="modTaxi" value="�ý� ����" /></td>
+				<td id="topTable"><input type="button" id="addCCTV" value="CCTV 추가" /></td>
+				<td id="topTable"><input type="button" id="addTaxi" value="TAXI 추가" /></td>
+				<td id="topTable"><input type="button" id="modTaxi" value="TAXI 수정" /></td>
 			</tr>
 		</table>
 
 		<table>
 		<tr>
-			<td>CCTV / �ý� �˻� <input type="text" id='cctvTaxi' value="" /></td>
+			<td>CCTV / TAXI <input type="text" id='cctvTaxi' value="" /></td>
 			<td><form name="cctvForm" method="post" action="" onsubmit="getCctvText(); return false;" >
-				<input type="submit" id="searchTextBtn" value="�˻�" /></form></td>
+				<input type="submit" id="searchTextBtn" value="검색" /></form></td>
 		</tr>
 		<tr>
-			<td><p>���̹� ���� �˻� <input type="text" id="naverMap" value = "" /></p></td>
+			<td><p>네이버 지도 검색 <input type="text" id="naverMap" value = "" /></p></td>
 			<td><form name="naverForm" method="post" action="" onsubmit="getNaverText(); return false;">
-				<input type="submit" id="searchMapBtn" value="�˻�" /></form></td>
+				<input type="submit" id="searchMapBtn" value="검색" /></form></td>
 		</tr>
 	</table>
-
-		<script type="text/javascript" charset="utf-8">
-			/*function handleSearchTextBtn(e){
-				var text = document.getElementById("cctvTaxi");
-				if(text == null)
-					alert("Object is null");
-				if(text.value == "")
-					alert("Please enter a search text");
-				else
-					alert(text.value);
-			}
-
-			function handleMapSearchBtn(e){
-				var text = document.getElementById("naverMap");
-				if(text == null)
-					alert("Object is null");
-				if(text.value == "")
-					alert("Please enter a search text");
-				else
-					alert(text.value);
-			}*/
-		</script>
 
 		<div id ="map"></div>
 			<script>
