@@ -34,9 +34,8 @@
 					alert("No input");
 					return false;
 				}
-				
-				alert("naverXMLPage.jsp?query=" + searchText);
-				
+				//alert("naverXMLPage.jsp?query=" + searchText);
+				var numTotal;
 				$.ajax({
 					
 					url : "naverXMLPage.jsp?query=" + searchText 
@@ -45,7 +44,15 @@
 					, success : function(result){
 						$(result).find('geocode').each(function(){
 							var total = $(this).find("total").text();
-							alert("TOTAL : " + total);
+							numTotal = Number(total);
+							if(numTotal == 0){
+								$("#search_result").append("<li>검색 결과가 없습니다.</li>");
+								return;
+							}
+							$(this).find('total').each(function(){
+							
+							
+							});
 						});
 					}
 					, error : function(x,e){
@@ -84,7 +91,7 @@
 		</tr>
 	</table>
 
-		<div id ="map"></div>
+		<div id ="map">
 			<script>
 				var oPoint = new nhn.api.map.LatLng(37.5010226, 127.0396037);
 				nhn.api.map.setDefaultPoint('LatLng');
@@ -101,5 +108,10 @@
 					size: new nhn.api.map.Size(800, 400)
 				});
 			</script>
+		</div>
+		<h3>검색 결과</h3>
+		<ul id="search_result">
+		
+		</ul>
 	</body>
 </html>
