@@ -9,7 +9,9 @@
 
 		<script type="text/javascript">
 			try {document.execCommand('BackgroundImageCache', false, true);} catch(e) {}
-
+			$(document).ready(function() {
+				$('.Result_Show_text').toggle();
+			}
 			function checkForm(text){
 				if(text == ""){
 					return true;
@@ -21,7 +23,6 @@
 
 			function getCctvText(){
 				var searchText = $("#cctvTaxi").val();
-				alert(searchText);
 				if(checkForm(searchText)){
 					alert("No input");
 					return false;
@@ -49,9 +50,10 @@
 								$("#search_result").append("<li>검색 결과가 없습니다.</li>");
 								return;
 							}
-							$(this).find('total').each(function(){
-							
-							
+							$(this).find('item').each(function(){
+								var addr = $(this).find('address').text();
+								//alert(addr);
+								$("#search_result").append("<li><a href=\"\">"+addr+"</a></li>");
 							});
 						});
 					}
@@ -109,9 +111,8 @@
 				});
 			</script>
 		</div>
-		<h3>검색 결과</h3>
-		<ul id="search_result">
-		
-		</ul>
+		<h3 class="Result_Show_text">검색 결과</h3>
+		<ol id="search_result" class="rounded-list">
+		</ol>
 	</body>
 </html>
