@@ -55,6 +55,7 @@ body{
 }
 
 .Result_Show_text{
+	display : none;
 	text-shadow: 0 0 10px #c61a1a;
 	color: #C61A1A;
 }

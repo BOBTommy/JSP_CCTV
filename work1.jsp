@@ -9,9 +9,17 @@
 
 		<script type="text/javascript">
 			try {document.execCommand('BackgroundImageCache', false, true);} catch(e) {}
-			$(document).ready(function() {
-				$('.Result_Show_text').toggle();
+			
+			function NaverObject(addr, x, y){
+				this.addr = addr;
+				this.x = x;
+				this.y = y;
 			}
+			
+			NaverObject.prototype.getAddr = function() {return this.addr;}
+			NaverObject.prototype.getX = function() {return Number(this.x);}
+			NaverObject.prototype.getY = function() {return Number(this.y);}
+			
 			function checkForm(text){
 				if(text == ""){
 					return true;
@@ -46,6 +54,11 @@
 						$(result).find('geocode').each(function(){
 							var total = $(this).find("total").text();
 							numTotal = Number(total);
+							$('.Result_Show_text').show();
+							
+							if( $("#search_result").index() != 0 )
+								$("#search_result").empty();
+							
 							if(numTotal == 0){
 								$("#search_result").append("<li>검색 결과가 없습니다.</li>");
 								return;
