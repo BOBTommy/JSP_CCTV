@@ -10,6 +10,14 @@
 		<script type="text/javascript">
 			try {document.execCommand('BackgroundImageCache', false, true);} catch(e) {}
 			
+			var naverObjects = [];
+			var listNum = 0;
+			var oSize = new nhn.api.map.Size(28, 37);
+			var oOffset = new nhn.api.map.Size(14, 37);
+			var iCon = new nhn.api.map.Icon('cctv.png',oSize, oOffset);
+			
+			var cctvMarker =new nhn.api.map.Marker(iCon);
+			
 			function NaverObject(addr, x, y){
 				this.addr = addr;
 				this.x = x;
@@ -20,6 +28,21 @@
 			NaverObject.prototype.getX = function() {return Number(this.x);}
 			NaverObject.prototype.getY = function() {return Number(this.y);}
 			
+			$(document).ready(function(){
+				
+				$('#addCCTV').bind("click", function(){
+						var fileName = "cctvPopUp.jsp";
+						var titleName = "CCTV Add form";
+						var flag = "";
+						flag += "width=550, ";
+						flag += "height=350";
+						
+						window.open(fileName,titleName,flag);
+					});
+				
+			});
+			
+						
 			function checkForm(text){
 				if(text == ""){
 					return true;
@@ -27,6 +50,14 @@
 				else{
 					return false;
 				}
+			}
+			
+			function removeBlank(text){
+				var returnString = text;
+				
+				returnString = returnString.replace(/(^\s*)|(\s*$)/, '');
+				
+				return returnString;
 			}
 
 			function getCctvText(){
@@ -43,6 +74,10 @@
 					alert("No input");
 					return false;
 				}
+				
+				searchText = removeBlank(searchText);
+				
+				listNum = 0;
 				//alert("naverXMLPage.jsp?query=" + searchText);
 				var numTotal;
 				$.ajax({
@@ -56,8 +91,10 @@
 							numTotal = Number(total);
 							$('.Result_Show_text').show();
 							
-							if( $("#search_result").index() != 0 )
+							if( $("#search_result").index() != 0 ){
 								$("#search_result").empty();
+								naverObjects = [];
+							}
 							
 							if(numTotal == 0){
 								$("#search_result").append("<li>검색 결과가 없습니다.</li>");
@@ -65,9 +102,23 @@
 							}
 							$(this).find('item').each(function(){
 								var addr = $(this).find('address').text();
-								//alert(addr);
-								$("#search_result").append("<li><a href=\"\">"+addr+"</a></li>");
+								var x = $(this).find('point').find('x').text();
+								var y = $(this).find('point').find('y').text();
+								naverObjects.push(new NaverObject(addr, Number(x), Number(y)));
+								//$("#search_result").append("<li><a href=\"\">"+addr+"</a></li>");
 							});
+							
+							for(var i =0 ; i < naverObjects.length; i++){
+								$("#search_result").append("<li><a id=\"list"+i+"\" href=\"#\">"+naverObjects[i].getAddr()+"</a></li>");	
+							}
+							
+							listNum = naverObjects.length;
+							
+					//		for(var i=0; i<listNum; i++){
+					//			$('#list'+i).on("click",moveMapXY(naverObjects[i]));
+					//		}
+							addListener();
+							
 						});
 					}
 					, error : function(x,e){
@@ -81,6 +132,16 @@
 			function getXMLHttpRequest(){
 				var addr = $("addr").val();
 			}
+			
+			function addCCTVPopUp(){
+				var flag;
+				flag = "width=400, ";
+				flag += "height=250";
+				
+				window.open('cctvPopUp.jsp',"CCTV 추가", flag);
+				return;
+			}
+			
 		</script>
 		<link href="StyleSheet.css" rel="stylesheet" type="text/css" />
 	</head>
@@ -108,9 +169,9 @@
 
 		<div id ="map">
 			<script>
-				var oPoint = new nhn.api.map.LatLng(37.5010226, 127.0396037);
-				nhn.api.map.setDefaultPoint('LatLng');
-				oMap = new nhn.api.map.Map('map', {
+				var oPoint = new nhn.api.map.TM128(315981, 546567);
+				nhn.api.map.setDefaultPoint('TM128');
+				var oMap = new nhn.api.map.Map('map', {
 					point: oPoint,
 					zoom: 10,
 					enableWheelZoom: true,
@@ -122,6 +183,35 @@
 					minMaxLevel: [1, 14],
 					size: new nhn.api.map.Size(800, 400)
 				});
+				
+				//init();
+				
+				//var aMarker = new nhn.api.map.Marker(iCon);
+				//aMarker.setPoint(oPoint);
+				//oMap.addOverlay(aMarker);
+				
+				//var aLabel = new nhn.api.map.MarkerLabel();
+				//oMap.addOverlay(aLabel);
+				//aLabel.setVisible(true, aLabel);
+				
+				
+				function addListener(){
+					for(var i=0; i<listNum; i++){
+						$('#list'+i).bind("click", { param1 : naverObjects[i] } ,function(event) {
+							var naverObj = event.data.param1;
+							var movePoint = new nhn.api.map.TM128(naverObj.getX(), naverObj.getY());
+							oMap.setCenter(movePoint);	//맵 위치 이동
+							
+							
+							cctvMarker.setPoint(movePoint);	//마커표시
+							oMap.addOverlay(cctvMarker);
+							
+							var oLabel = new nhn.api.map.MarkerLabel();
+							oMap.addOverlay(oLabel);
+							//oLabel.setVisible(true, cctvMarker);
+						});
+					}
+				}
 			</script>
 		</div>
 		<h3 class="Result_Show_text">검색 결과</h3>
