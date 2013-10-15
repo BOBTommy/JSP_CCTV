@@ -11,6 +11,7 @@
 			try {document.execCommand('BackgroundImageCache', false, true);} catch(e) {}
 			
 			var naverObjects = [];
+			var cctvObjects = [];
 			var listNum = 0;
 			var oSize = new nhn.api.map.Size(28, 37);
 			var oOffset = new nhn.api.map.Size(14, 37);
@@ -18,6 +19,7 @@
 			
 			var cctvMarker =new nhn.api.map.Marker(iCon);
 			
+			//Naver Object : 네이버 검색 결과를 담고 있는 Object
 			function NaverObject(addr, x, y){
 				this.addr = addr;
 				this.x = x;
@@ -27,6 +29,25 @@
 			NaverObject.prototype.getAddr = function() {return this.addr;}
 			NaverObject.prototype.getX = function() {return Number(this.x);}
 			NaverObject.prototype.getY = function() {return Number(this.y);}
+			
+			//CCTV Object : CCTV 정보를 담고 있음 마커도 한개씩
+			function CCTV(marker, num, addr, adminName, adminPhone, coverage, coPoint){
+				this.marker = marker;
+				this.num = num;
+				this.addr = addr;
+				this.adminName = adminName;
+				this.adminPhone = adminPhone;
+				this.coverage = coverage;
+				this.coPoint = coPoint;
+			}
+			
+			CCTV.prototype.getMarker = function() {return this.marker;}
+			CCTV.prototype.getNum = function() {return this.num;}
+			CCTV.prototype.getAddr = function() {return this.addr;}
+			CCTV.prototype.getAdminName = function() {return this.adminName;}
+			CCTV.prototype.getAdminPhone = function() {return this.adminPhone;}
+			CCTV.prototype.getCoverage = function() {return this.coverage;}
+			CCTV.prototype.getPoint = function() {return this.coPoint;}
 			
 			$(document).ready(function(){
 				
@@ -39,6 +60,8 @@
 						
 						window.open(fileName,titleName,flag);
 					});
+					
+				oMap.attach("click",markerEvent);
 				
 			});
 			
@@ -54,9 +77,7 @@
 			
 			function removeBlank(text){
 				var returnString = text;
-				
 				returnString = returnString.replace(/(^\s*)|(\s*$)/, '');
-				
 				return returnString;
 			}
 
@@ -142,6 +163,12 @@
 				return;
 			}
 			
+			var markerEvent = function(pos){
+				var clickPoint = new nhn.api.map.TM128(pos.point.getX(),pos.point.getY());
+				var marker = new nhn.api.map.Marker(iCon);
+				
+			}	
+			
 		</script>
 		<link href="StyleSheet.css" rel="stylesheet" type="text/css" />
 	</head>
@@ -169,6 +196,7 @@
 
 		<div id ="map">
 			<script>
+			
 				var oPoint = new nhn.api.map.TM128(315981, 546567);
 				nhn.api.map.setDefaultPoint('TM128');
 				var oMap = new nhn.api.map.Map('map', {
