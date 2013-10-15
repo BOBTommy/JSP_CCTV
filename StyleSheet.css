@@ -59,3 +59,33 @@ body{
 	text-shadow: 0 0 10px #c61a1a;
 	color: #C61A1A;
 }
+
+h1 {
+	font-size : 35px; color:#445668; text-transform: uppercase;
+	text-align:center; margin:0 0 35px 0; texts-shadow: 0px 1px 0px #f2f2f2;
+}
+
+label {
+	float : left; claer: left; width:120px;
+	text-align: right; font-size:16px; color:#445668;
+	text-shadow:0px 1px 0px #f2f2f2;
+}
+
+#addSave:focus, textareaLfocus{
+	background: #728eaa;
+}
+
+#addSave {
+	width: 185px; height:52px; float:right; padding:10px 15px; margin:0 15px 0 0;
+	border: 1px solid #556f8c;
+	cursor: pointer;
+}
+
+.commentBox {
+	display: block;
+    width: 300px;
+    height: 15px;
+	padding: 1px
+    border: 1px solid #cccccc;
+    font-size: 12px;
+}

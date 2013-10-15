@@ -55,8 +55,8 @@
 						var fileName = "cctvPopUp.jsp";
 						var titleName = "CCTV Add form";
 						var flag = "";
-						flag += "width=550, ";
-						flag += "height=350";
+						flag += "width=500, ";
+						flag += "height=400";
 						
 						window.open(fileName,titleName,flag);
 					});
@@ -156,8 +156,8 @@
 			
 			function addCCTVPopUp(){
 				var flag;
-				flag = "width=400, ";
-				flag += "height=250";
+				flag = "width=500, ";
+				flag += "height=800";
 				
 				window.open('cctvPopUp.jsp',"CCTV 추가", flag);
 				return;
