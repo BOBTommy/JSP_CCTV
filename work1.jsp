@@ -13,6 +13,7 @@
 			var naverObjects = [];
 			var cctvObjects = [];
 			var listNum = 0;
+			var markerNum = 0;
 			var oSize = new nhn.api.map.Size(28, 37);
 			var oOffset = new nhn.api.map.Size(14, 37);
 			var iCon = new nhn.api.map.Icon('cctv.png',oSize, oOffset);
@@ -22,6 +23,8 @@
 			
 			
 			var cctvMarker =new nhn.api.map.Marker(iCon);
+			var mapInfoWindow = new nhn.api.map.InfoWindow();
+			mapInfoWindow.setVisible(false);
 			
 			//Naver Object : 네이버 검색 결과를 담고 있는 Object
 			function NaverObject(addr, x, y){
@@ -59,7 +62,8 @@
 					addCCTVPopUp();
 				});
 					
-				oMap.attach("click",markerEvent);
+				oMap.attach("click",clickEvent);
+				oMap.addOverlay(mapInfoWindow);
 				
 				$("#additionFlag").text("CCTV 추가모드 : Disable");
 				
@@ -166,14 +170,35 @@
 				}
 			}
 			
+			var clickPoint;
 			
-			
-			var markerEvent = function(pos){
+			var clickEvent = function(oCustomEvent){
+				
+				var pos = oCustomEvent.point;
+				var oTarget = oCustomEvent.target;
+				
+				if(oTarget instanceof nhn.api.map.Marker){
+					for(var i=0; i<markerNum; i++){
+						if( (cctvObjects[i].getMarker().getPoint().getX() == oTarget.getPoint().getX()) &&
+							(cctvObjects[i].getMarker().getPoint().getY() == oTarget.getPoint().getY()) ){
+							mapInfoWindow.setContent('CCTV NUM : ' + cctvObjects[i].getNum() +'<br>'
+													+ 'CCTV ADDR : ' + cctvObjects[i].getAddr() + '<br>'
+													+ 'Admin Name : ' + cctvObjects[i].getAdminName() + '<br>'
+													+ 'Admin Contact : ' + cctvObjects[i].getAdminPhone() + '<br>'
+													+ 'CCTV Coverage(m) : ' + cctvObjects[i].getCoverage());
+							mapInfoWindow.setPoint(oTarget.getPoint());
+							mapInfoWindow.setVisible(true);
+							
+							break;
+						}
+					}
+					return;
+				}	
+				
 				if(cctvAdditionFlag == false)
 					return;
-			
-				var clickPoint = new nhn.api.map.TM128(pos.point.getX(),pos.point.getY());
-				var marker = new nhn.api.map.Marker(iCon);
+					
+				clickPoint = new nhn.api.map.TM128(pos.getX(),pos.getY());
 				
 				var flag;
 				flag = "width=500, ";
@@ -183,7 +208,15 @@
 			}
 
 			function alert2(){
-				alert("Hello world");
+				alert(clickPoint);
+			}
+			
+			function makeMarker(num, addr, adminName, adminPhone, coverage){
+				var oMarker = new nhn.api.map.Marker(iCon);
+				oMarker.setPoint(clickPoint);
+				cctvObjects.push(new CCTV(oMarker,num,addr,adminName,adminPhone,coverage,clickPoint));
+				oMap.addOverlay(cctvObjects[markerNum].getMarker());
+				markerNum++;
 			}
 			
 		</script>
@@ -230,16 +263,6 @@
 					size: new nhn.api.map.Size(800, 400)
 				});
 				
-				//init();
-				
-				//var aMarker = new nhn.api.map.Marker(iCon);
-				//aMarker.setPoint(oPoint);
-				//oMap.addOverlay(aMarker);
-				
-				//var aLabel = new nhn.api.map.MarkerLabel();
-				//oMap.addOverlay(aLabel);
-				//aLabel.setVisible(true, aLabel);
-				
 				
 				function addListener(){
 					for(var i=0; i<listNum; i++){
@@ -248,12 +271,11 @@
 							var movePoint = new nhn.api.map.TM128(naverObj.getX(), naverObj.getY());
 							oMap.setCenter(movePoint);	//맵 위치 이동
 							
+							//cctvMarker.setPoint(movePoint);	//마커표시
+							//oMap.addOverlay(cctvMarker);
 							
-							cctvMarker.setPoint(movePoint);	//마커표시
-							oMap.addOverlay(cctvMarker);
-							
-							var oLabel = new nhn.api.map.MarkerLabel();
-							oMap.addOverlay(oLabel);
+							//var oLabel = new nhn.api.map.MarkerLabel();
+							//oMap.addOverlay(oLabel);
 							//oLabel.setVisible(true, cctvMarker);
 						});
 					}

@@ -18,7 +18,8 @@
 				var adminPhone = $("#adminPhone").val();
 				var coverage = $("#coverage").val();
 				
-				window.opener.alert2();
+				window.opener.makeMarker(num,addr,adminName,adminPhone,coverage);
+				window.close();
 			}
 			
 			function validationCheck(){
