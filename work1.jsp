@@ -17,6 +17,10 @@
 			var oOffset = new nhn.api.map.Size(14, 37);
 			var iCon = new nhn.api.map.Icon('cctv.png',oSize, oOffset);
 			
+			//현재 CCTV 추가 상황인지 아닌지 체크 하는 flag
+			var cctvAdditionFlag = false;
+			
+			
 			var cctvMarker =new nhn.api.map.Marker(iCon);
 			
 			//Naver Object : 네이버 검색 결과를 담고 있는 Object
@@ -52,16 +56,12 @@
 			$(document).ready(function(){
 				
 				$('#addCCTV').bind("click", function(){
-						var fileName = "cctvPopUp.jsp";
-						var titleName = "CCTV Add form";
-						var flag = "";
-						flag += "width=500, ";
-						flag += "height=400";
-						
-						window.open(fileName,titleName,flag);
-					});
+					addCCTVPopUp();
+				});
 					
 				oMap.attach("click",markerEvent);
+				
+				$("#additionFlag").text("CCTV 추가모드 : Disable");
 				
 			});
 			
@@ -155,19 +155,36 @@
 			}
 			
 			function addCCTVPopUp(){
-				var flag;
-				flag = "width=500, ";
-				flag += "height=800";
-				
-				window.open('cctvPopUp.jsp',"CCTV 추가", flag);
-				return;
+				if(cctvAdditionFlag == false){
+					$("#additionFlag").text("CCTV 추가모드 : Enable");
+					cctvAdditionFlag = true;
+					$("#addCCTV").prop('value','추가 중지');
+				}else if(cctvAdditionFlag == true){
+					$("#additionFlag").text("CCTV 추가모드 : Disable");
+					cctvAdditionFlag = false;
+					$("#addCCTV").prop('value','CCTV 추가');
+				}
 			}
 			
+			
+			
 			var markerEvent = function(pos){
+				if(cctvAdditionFlag == false)
+					return;
+			
 				var clickPoint = new nhn.api.map.TM128(pos.point.getX(),pos.point.getY());
 				var marker = new nhn.api.map.Marker(iCon);
 				
-			}	
+				var flag;
+				flag = "width=500, ";
+				flag += "height=420";
+				window.open('cctvPopUp.jsp',"CCTV 추가", flag);
+				
+			}
+
+			function alert2(){
+				alert("Hello world");
+			}
 			
 		</script>
 		<link href="StyleSheet.css" rel="stylesheet" type="text/css" />
@@ -178,6 +195,7 @@
 				<td id="topTable"><input type="button" id="addCCTV" value="CCTV 추가" /></td>
 				<td id="topTable"><input type="button" id="addTaxi" value="TAXI 추가" /></td>
 				<td id="topTable"><input type="button" id="modTaxi" value="TAXI 수정" /></td>
+				<td id="topTable"><label id="additionFlag"></label>
 			</tr>
 		</table>
 
@@ -242,7 +260,7 @@
 				}
 			</script>
 		</div>
-		<h3 class="Result_Show_text">검색 결과</h3>
+		<h3 class="Result_Show_text">네이버 지도 검색 결과</h3>
 		<ol id="search_result" class="rounded-list">
 		</ol>
 	</body>
