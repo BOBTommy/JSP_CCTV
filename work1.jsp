@@ -38,7 +38,7 @@
 			NaverObject.prototype.getY = function() {return Number(this.y);}
 			
 			//CCTV Object : CCTV 정보를 담고 있음 마커도 한개씩
-			function CCTV(marker, num, addr, adminName, adminPhone, coverage, coPoint){
+			function CCTV(marker, num, addr, adminName, adminPhone, coverage, coPoint, circle){
 				this.marker = marker;
 				this.num = num;
 				this.addr = addr;
@@ -46,6 +46,7 @@
 				this.adminPhone = adminPhone;
 				this.coverage = coverage;
 				this.coPoint = coPoint;
+				this.circle = circle;
 			}
 			
 			CCTV.prototype.getMarker = function() {return this.marker;}
@@ -55,6 +56,7 @@
 			CCTV.prototype.getAdminPhone = function() {return this.adminPhone;}
 			CCTV.prototype.getCoverage = function() {return this.coverage;}
 			CCTV.prototype.getPoint = function() {return this.coPoint;}
+			CCTV.prototype.getCircle = function() {return this.circle;}
 			
 			$(document).ready(function(){
 				
@@ -193,7 +195,8 @@
 							
 							if(clickedMarker == i){ //동일 클릭인 경우 없애기
 								mapInfoWindow.setVisible(false);
-									clickedMarker = -1;
+								clickedMarker = -1;
+								return;
 							}
 							
 							mapInfoWindow.setContent('<div id = \"InfoStyle\">CCTV NUM : ' + cctvObjects[i].getNum() +'<br>'
@@ -229,8 +232,18 @@
 			function makeMarker(num, addr, adminName, adminPhone, coverage){
 				var oMarker = new nhn.api.map.Marker(iCon);
 				oMarker.setPoint(clickPoint);
-				cctvObjects.push(new CCTV(oMarker,num,addr,adminName,adminPhone,coverage,clickPoint));
+				cctvObjects.push(new CCTV(oMarker,num,addr,adminName,adminPhone,coverage,clickPoint,
+								new nhn.api.map.Circle({
+									strokeColor : "red",
+									strokeOpacity : 0.8,
+									strokeWidth : 1,
+									fillColor : "blue",
+									fillOpacity : 0.3})
+									));
 				oMap.addOverlay(cctvObjects[markerNum].getMarker());
+				cctvObjects[markerNum].getCircle().setCenterPoint(clickPoint);
+				cctvObjects[markerNum].getCircle().setRadius(coverage);
+				oMap.addOverlay(cctvObjects[markerNum].getCircle());
 				markerNum++;
 			}
 			
