@@ -67,6 +67,14 @@
 				
 				$("#additionFlag").text("CCTV 추가모드 : Disable");
 				
+				$(".nmap_infowindow_content").css( {'border-radius' : '10px',
+									'border' : '1px solid #cbcbcb',
+									'background' : '#ffffff',
+									'font-size' : '12px',
+									'color' : '#2e5d7f',
+									'padding' : '5px 5px',
+									'width' : '200px'});
+				
 			});
 			
 						
@@ -171,6 +179,7 @@
 			}
 			
 			var clickPoint;
+			var clickedMarker = -1;
 			
 			var clickEvent = function(oCustomEvent){
 				
@@ -181,14 +190,20 @@
 					for(var i=0; i<markerNum; i++){
 						if( (cctvObjects[i].getMarker().getPoint().getX() == oTarget.getPoint().getX()) &&
 							(cctvObjects[i].getMarker().getPoint().getY() == oTarget.getPoint().getY()) ){
-							mapInfoWindow.setContent('CCTV NUM : ' + cctvObjects[i].getNum() +'<br>'
+							
+							if(clickedMarker == i){ //동일 클릭인 경우 없애기
+								mapInfoWindow.setVisible(false);
+									clickedMarker = -1;
+							}
+							
+							mapInfoWindow.setContent('<div id = \"InfoStyle\">CCTV NUM : ' + cctvObjects[i].getNum() +'<br>'
 													+ 'CCTV ADDR : ' + cctvObjects[i].getAddr() + '<br>'
 													+ 'Admin Name : ' + cctvObjects[i].getAdminName() + '<br>'
 													+ 'Admin Contact : ' + cctvObjects[i].getAdminPhone() + '<br>'
-													+ 'CCTV Coverage(m) : ' + cctvObjects[i].getCoverage());
+													+ 'CCTV Coverage(M) : ' + cctvObjects[i].getCoverage()) +'</div>';
 							mapInfoWindow.setPoint(oTarget.getPoint());
 							mapInfoWindow.setVisible(true);
-							
+							clickedMarker = i;
 							break;
 						}
 					}
