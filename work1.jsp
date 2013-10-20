@@ -17,6 +17,8 @@
 			var oSize = new nhn.api.map.Size(28, 37);
 			var oOffset = new nhn.api.map.Size(14, 37);
 			var iCon = new nhn.api.map.Icon('cctv.png',oSize, oOffset);
+			var curX;
+			var curY;//현재 마우스가 있는 x,y 좌표. Context Menu이용시 사용
 			
 			//현재 CCTV 추가 상황인지 아닌지 체크 하는 flag
 			var cctvAdditionFlag = false;
@@ -63,8 +65,13 @@
 				$('#addCCTV').bind("click", function(){
 					addCCTVPopUp();
 				});
+				
+				$(document).bind("contextmenu",function(event){
+					event.preventDefault();
+				});
 					
 				oMap.attach("click",clickEvent);
+				oMap.attach("contextmenu",contextEvent);
 				oMap.addOverlay(mapInfoWindow);
 				
 				$("#additionFlag").text("CCTV 추가모드 : Disable");
@@ -77,6 +84,28 @@
 									'padding' : '5px 5px',
 									'width' : '200px'});
 				
+				//Configuration of Explorer IE or FireFox for contextmenu
+				var configIE = false;
+				var configFF = false;
+				if(document.all && document.getElementById){
+					configIE = true;
+				}
+				
+				if( !document.all && document.getElementById){
+					configFF = true;
+				}
+				
+				if(configIE || configFF){
+					document.onclick = hideContext;
+				
+				}
+				
+			});
+			
+			//Context 메뉴를 위한 x,y좌표 get
+			$(document).mousemove(function(e){
+				curX = e.pageX;
+				curY = e.pageY;
 			});
 			
 						
@@ -188,6 +217,9 @@
 				var pos = oCustomEvent.point;
 				var oTarget = oCustomEvent.target;
 				
+				$(".MarkerContextMenu").css("display","none");
+				isContextVisible = false;
+				
 				if(oTarget instanceof nhn.api.map.Marker){
 					for(var i=0; i<markerNum; i++){
 						if( (cctvObjects[i].getMarker().getPoint().getX() == oTarget.getPoint().getX()) &&
@@ -245,6 +277,38 @@
 				cctvObjects[markerNum].getCircle().setRadius(coverage);
 				oMap.addOverlay(cctvObjects[markerNum].getCircle());
 				markerNum++;
+			}
+			
+			var curContext = -1;
+			var isContextVisible = false;
+			
+			var contextEvent = function(oCustomEvent){
+				
+				//alert("X : "+curX+" Y : "+curY);
+				var pos = oCustomEvent.point;//Get Position of Marker
+				var oTarget = oCustomEvent.target;
+				
+				if(oTarget instanceof nhn.api.map.Marker){
+					for(var i=0; i<markerNum; i++){
+						if( (cctvObjects[i].getMarker().getPoint().getX() == oTarget.getPoint().getX()) &&
+							(cctvObjects[i].getMarker().getPoint().getY() == oTarget.getPoint().getY()) ){
+							$(".MarkerContextMenu").css("display","none");
+					
+							
+							$(".MarkerContextMenu").css("left",curX+"px");
+							$(".MarkerContextMenu").css("top",curY+"px");
+							$(".MarkerContextMenu").css("display","block");
+							
+							isContextVisible = true;
+						}
+					}
+				}
+
+			}
+			
+			var hideContext = function(){
+				$(".MarkerContextMenu").css("display","none");
+				isContextVisible = false;
 			}
 			
 		</script>
@@ -313,5 +377,12 @@
 		<h3 class="Result_Show_text">네이버 지도 검색 결과</h3>
 		<ol id="search_result" class="rounded-list">
 		</ol>
+		
+		<!-- CCTV Context Menu -->
+		<ul id=\"CM1\" class="MarkerContextMenu">
+			<li><a href="#">수정</a></li>
+			<li><a href="#">삭제</a></li>
+		</ul>
+		
 	</body>
 </html>

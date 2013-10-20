@@ -85,9 +85,39 @@ label {
 	display: block;
     width: 300px;
     height: 15px;
-	padding: 1px
+	padding: 1px;
     border: 1px solid #cccccc;
     font-size: 12px;
 }
 
+ul.MarkerContextMenu{
+	display:none;
+	position:absolute;
+	margin:0px;
+	padding:0px;
+	font-size:15px;
+	list-style-type:none;
+	border-top: 1px solid #000000;
+	border-left: 1px solid #000000;
+	border-right: 1px solid #000000;
+}
+
+ul.MarkerContextMenu li {
+	border-bottom: 1px solid #000000;
+}
+
+ul.MarkerContextMenu li a{
+	display: block;
+	width:50px;
+	padding:2px 10px 3px 10px;
+	text-decoration:none;
+	color:#ff0000;
+	background:#eeeeee;
+}
+
+ul.MarkerContextMenu li a:hover{
+	text-decoration:none;
+	color:#ffffff;
+	background:#ff00000;
+}
 
