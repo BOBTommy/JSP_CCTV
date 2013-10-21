@@ -66,6 +66,9 @@
 					addCCTVPopUp();
 				});
 				
+				$('#modifyMarker').bind("click",testFunction);
+				$('#deleteMarker').bind("click",testFunction);
+				
 				$(document).bind("contextmenu",function(event){
 					event.preventDefault();
 				});
@@ -256,9 +259,9 @@
 				window.open('cctvPopUp.jsp',"CCTV 추가", flag);
 				
 			}
-
-			function alert2(){
-				alert(clickPoint);
+			
+			var testFunction = function(){
+				alert("Hello World");
 			}
 			
 			function makeMarker(num, addr, adminName, adminPhone, coverage){
@@ -294,12 +297,12 @@
 							(cctvObjects[i].getMarker().getPoint().getY() == oTarget.getPoint().getY()) ){
 							$(".MarkerContextMenu").css("display","none");
 					
-							
 							$(".MarkerContextMenu").css("left",curX+"px");
 							$(".MarkerContextMenu").css("top",curY+"px");
 							$(".MarkerContextMenu").css("display","block");
 							
 							isContextVisible = true;
+							curContext = i;
 						}
 					}
 				}
@@ -380,8 +383,8 @@
 		
 		<!-- CCTV Context Menu -->
 		<ul id=\"CM1\" class="MarkerContextMenu">
-			<li><a href="#">수정</a></li>
-			<li><a href="#">삭제</a></li>
+			<li><a id="modifyMarker" href="#">수정</a></li>
+			<li><a id="deleteMarker" href="#">삭제</a></li>
 		</ul>
 		
 	</body>
