@@ -52,13 +52,21 @@
 			}
 			
 			CCTV.prototype.getMarker = function() {return this.marker;}
+			CCTV.prototype.setMarker = function(marker) {this.marker = marker;}
 			CCTV.prototype.getNum = function() {return this.num;}
+			CCTV.prototype.setNum = function(num) {this.num = num;}
 			CCTV.prototype.getAddr = function() {return this.addr;}
+			CCTV.prototype.setAddr = function(addr) {this.addr = addr;}
 			CCTV.prototype.getAdminName = function() {return this.adminName;}
+			CCTV.prototype.setAdminName = function(adminName) {this.adminName = adminName;}
 			CCTV.prototype.getAdminPhone = function() {return this.adminPhone;}
+			CCTV.prototype.setAdminPhone = function(adminPhone) {this.adminPhone = adminPhone;}
 			CCTV.prototype.getCoverage = function() {return this.coverage;}
+			CCTV.prototype.setCoverage = function(coverage) {this.coverage = coverage;}
 			CCTV.prototype.getPoint = function() {return this.coPoint;}
+			CCTV.prototype.setPoint = function(point) {this.point = point;}
 			CCTV.prototype.getCircle = function() {return this.circle;}
+			CCTV.prototype.setCircle = function(circle) {this.circle = circle;}
 			
 			$(document).ready(function(){
 				
@@ -66,8 +74,8 @@
 					addCCTVPopUp();
 				});
 				
-				$('#modifyMarker').bind("click",testFunction);
-				$('#deleteMarker').bind("click",testFunction);
+				$('#modifyMarker').bind("click",modifyCCTV);
+				$('#deleteMarker').bind("click",deleteCCTV);
 				
 				$(document).bind("contextmenu",function(event){
 					event.preventDefault();
@@ -280,6 +288,25 @@
 				cctvObjects[markerNum].getCircle().setRadius(coverage);
 				oMap.addOverlay(cctvObjects[markerNum].getCircle());
 				markerNum++;
+			}
+			
+			function modifyCCTV(){
+			
+			
+			}
+			
+			function deleteCCTV(){
+				if(confirm('정말로 삭제하시겠습니까?')){
+					//alert("Yes")
+					var index = curContext;
+					cctvObjects[index].setNum(Number(-1));
+					cctvObjects[index].setAddr("-");
+					cctvObjects[index].getMarker().setVisible(false);
+					cctvObjects[index].getCircle().setVisible(false);
+				}else{
+					return;
+				}
+				
 			}
 			
 			var curContext = -1;
