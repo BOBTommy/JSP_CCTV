@@ -23,7 +23,6 @@
 			//현재 CCTV 추가 상황인지 아닌지 체크 하는 flag
 			var cctvAdditionFlag = false;
 			
-			
 			var cctvMarker =new nhn.api.map.Marker(iCon);
 			var mapInfoWindow = new nhn.api.map.InfoWindow();
 			mapInfoWindow.setVisible(false);
@@ -186,28 +185,18 @@
 							for(var i =0 ; i < naverObjects.length; i++){
 								$("#search_result").append("<li><a id=\"list"+i+"\" href=\"#\">"+naverObjects[i].getAddr()+"</a></li>");	
 							}
-							
 							listNum = naverObjects.length;
-							
-					//		for(var i=0; i<listNum; i++){
-					//			$('#list'+i).on("click",moveMapXY(naverObjects[i]));
-					//		}
 							addListener();
-							
 						});
 					}
 					, error : function(x,e){
-						//alert(result);
 						alert(e);
 					}
-
 				});
 			}
-
 			function getXMLHttpRequest(){
 				var addr = $("addr").val();
 			}
-			
 			function addCCTVPopUp(){
 				if(cctvAdditionFlag == false){
 					$("#additionFlag").text("CCTV 추가모드 : Enable");
@@ -228,9 +217,11 @@
 				var pos = oCustomEvent.point;
 				var oTarget = oCustomEvent.target;
 				
+				//출력되어 있는 CCTV 컨텍스트 메뉴는 취소
 				$(".MarkerContextMenu").css("display","none");
 				isContextVisible = false;
 				
+				//마커를 클릭한 경우
 				if(oTarget instanceof nhn.api.map.Marker){
 					for(var i=0; i<markerNum; i++){
 						if( (cctvObjects[i].getMarker().getPoint().getX() == oTarget.getPoint().getX()) &&
@@ -256,11 +247,14 @@
 					return;
 				}	
 				
+				//CCTV 추가 플래그 확인
 				if(cctvAdditionFlag == false)
 					return;
 					
+				//CCTV 추가인 경우 해당 지점 얻어오기
 				clickPoint = new nhn.api.map.TM128(pos.getX(),pos.getY());
 				
+				//CCTV 추가 flag Handling
 				var flag;
 				flag = "width=500, ";
 				flag += "height=420";
@@ -273,6 +267,25 @@
 			}
 			
 			function makeMarker(num, addr, adminName, adminPhone, coverage){
+			
+				// 기존에 있던 것중 삭제 된 것이 있어서 이 객체를 수정하는 경우
+				for(var i=0; i<markerNum; i++){
+					var tmp = Number(cctvObjects[i].getNum());
+					if(tmp == -1){
+						cctvObjects[i].setNum(Number(num));
+						cctvObjects[i].setAddr(addr);
+						cctvObjects[i].setAdminName(adminName);
+						cctvObjects[i].setAdminPhone(adminPhone);
+						cctvObjects[i].setCoverage(coverage);
+						cctvObjects[i].getMarker().setPoint(clickPoint);
+						cctvObjects[i].getCircle().setRadius(coverage);
+						cctvObjects[i].getCircle().setCenterPoint(clickPoint);
+						cctvObjects[i].getMarker().setVisible(true);
+						cctvObjects[i].getCircle().setVisible(true);
+						return;
+					}
+				}
+			
 				var oMarker = new nhn.api.map.Marker(iCon);
 				oMarker.setPoint(clickPoint);
 				cctvObjects.push(new CCTV(oMarker,num,addr,adminName,adminPhone,coverage,clickPoint,
@@ -290,9 +303,37 @@
 				markerNum++;
 			}
 			
+			var modifyIndex = -1;
+			var modi_num;
+			var modi_addr;
+			var modi_adminName;
+			var modi_adminPhone;
+			var modi_coverage;
+			
+			
 			function modifyCCTV(){
+				modifyIndex = curContext;
+				modi_num = cctvObjects[modifyIndex].getNum();
+				modi_addr = cctvObjects[modifyIndex].getAddr();
+				modi_adminName = cctvObjects[modifyIndex].getAdminName();
+				modi_adminPhone = cctvObjects[modifyIndex].getAdminPhone();
+				modi_coverage = cctvObjects[modifyIndex].getCoverage();
+				
+				var flag;
+				flag = "width=500, ";
+				flag += "height=420";
+				window.open('cctvPopUpModi.jsp',"CCTV 수정", flag);
+			}
 			
-			
+			function setCCTV(num, addr, adminName, adminPhone, coverage){
+				cctvObjects[modifyIndex].setNum(Number(num));
+				cctvObjects[modifyIndex].setAddr(addr);
+				cctvObjects[modifyIndex].setAdminName(adminName);
+				cctvObjects[modifyIndex].setAdminPhone(adminPhone);
+				cctvObjects[modifyIndex].setCoverage(coverage);
+				cctvObjects[modifyIndex].getCircle().setRadius(Number(coverage));
+				cctvObjects[modifyIndex].getMarker().setVisible(true);
+				cctvObjects[modifyIndex].getCircle().setVisible(true);
 			}
 			
 			function deleteCCTV(){
@@ -309,13 +350,14 @@
 				
 			}
 			
-			var curContext = -1;
+			var curContext = -1;	// 오른쪽 마우스 클릭을 통해 가져온 마커 객체의 인덱스
 			var isContextVisible = false;
 			
 			var contextEvent = function(oCustomEvent){
 				
 				//alert("X : "+curX+" Y : "+curY);
 				var pos = oCustomEvent.point;//Get Position of Marker
+				clickPoint = new nhn.api.map.TM128(pos.getX(),pos.getY()); //Get position of Map
 				var oTarget = oCustomEvent.target;
 				
 				if(oTarget instanceof nhn.api.map.Marker){
