@@ -12,13 +12,15 @@
 			
 			var naverObjects = [];
 			var cctvObjects = [];
+			var searchObjects = []; //CCTV 검색으로 인해 생성된 CCTV
 			var listNum = 0;
 			var markerNum = 0;
 			var oSize = new nhn.api.map.Size(28, 37);
 			var oOffset = new nhn.api.map.Size(14, 37);
-			var iCon = new nhn.api.map.Icon('cctv.png',oSize, oOffset);
+			var iCon = new nhn.api.map.Icon('icon.png',oSize, oOffset);
 			var curX;
 			var curY;//현재 마우스가 있는 x,y 좌표. Context Menu이용시 사용
+			var PK = 1; //추가 될 Primary Key
 			
 			//현재 CCTV 추가 상황인지 아닌지 체크 하는 flag
 			var cctvAdditionFlag = false;
@@ -39,7 +41,7 @@
 			NaverObject.prototype.getY = function() {return Number(this.y);}
 			
 			//CCTV Object : CCTV 정보를 담고 있음 마커도 한개씩
-			function CCTV(marker, num, addr, adminName, adminPhone, coverage, coPoint, circle){
+			function CCTV(marker, num, addr, adminName, adminPhone, coverage, coPoint, circle, PK){
 				this.marker = marker;
 				this.num = num;
 				this.addr = addr;
@@ -48,6 +50,7 @@
 				this.coverage = coverage;
 				this.coPoint = coPoint;
 				this.circle = circle;
+				this.PK = PK;
 			}
 			
 			CCTV.prototype.getMarker = function() {return this.marker;}
@@ -63,9 +66,10 @@
 			CCTV.prototype.getCoverage = function() {return this.coverage;}
 			CCTV.prototype.setCoverage = function(coverage) {this.coverage = coverage;}
 			CCTV.prototype.getPoint = function() {return this.coPoint;}
-			CCTV.prototype.setPoint = function(point) {this.point = point;}
+			CCTV.prototype.setPoint = function(point) {this.coPoint = point;}
 			CCTV.prototype.getCircle = function() {return this.circle;}
 			CCTV.prototype.setCircle = function(circle) {this.circle = circle;}
+			CCTV.prototype.getPK = function() {return this.PK;}
 			
 			$(document).ready(function(){
 				
@@ -110,9 +114,40 @@
 				
 				}
 				
+				//Get from DB
+				$.ajax({
+					url : "dbQueryPage.jsp?command=init"
+					, dataType : "json"
+					, contentType : "application/json"
+					, success : function(data){
+						$.each(data, function(){
+							var oMarker = new nhn.api.map.Marker(iCon);
+							var dbPoint = new nhn.api.map.TM128(this.markerX,this.markerY);
+							oMarker.setPoint(dbPoint);
+							cctvObjects.push(new CCTV(oMarker,this.num,this.addr,this.adminName,this.adminPhone,this.coverage,dbPoint,
+								new nhn.api.map.Circle({
+									strokeColor : "red",
+									strokeOpacity : 0.8,
+									strokeWidth : 1,
+									fillColor : "blue",
+									fillOpacity : 0.3}),this.PK
+									));
+							oMap.addOverlay(cctvObjects[markerNum].getMarker());
+							cctvObjects[markerNum].getCircle().setCenterPoint(dbPoint);
+							cctvObjects[markerNum].getCircle().setRadius(this.coverage);
+							oMap.addOverlay(cctvObjects[markerNum].getCircle());
+							if(cctvObjects[markerNum].getNum() == -1){//이미 삭제된 객체의 경우
+								cctvObjects[markerNum].getCircle().setRadius(0);
+								cctvObjects[markerNum].getMarker().setVisible(false);
+							}
+							markerNum++;
+						});
+					}
+				});
+				PK = markerNum+1;
 			});
 			
-			//Context 메뉴를 위한 x,y좌표 get
+			//Context 메뉴,CCTV 검색 결과 표시를 위한 x,y좌표 get
 			$(document).mousemove(function(e){
 				curX = e.pageX;
 				curY = e.pageY;
@@ -134,12 +169,55 @@
 				return returnString;
 			}
 
+			var cctvSearchNum = -1;
+			
 			function getCctvText(){
 				var searchText = $("#cctvTaxi").val();
 				if(checkForm(searchText)){
 					alert("No input");
 					return false;
 				}
+				
+				$.ajax({
+					url : "dbQueryPage.jsp?query=" + searchText +"&command=search"
+					, type : "GET"
+					, dataType : "json"
+					, contentType: "application/json"
+					, success : function(data){
+						cctvSearchNum = 0;
+						searchObjects = [];
+						$("#searchList").empty();
+						$.each(data,function(){
+							if(Number(this.num) == -1){
+								alert("검색 결과가 없습니다.");
+								return;
+							}
+							var oMarker = new nhn.api.map.Marker(iCon);
+							var dbPoint = new nhn.api.map.TM128(this.markerX,this.markerY);
+							searchObjects.push(new CCTV(oMarker,this.num,this.addr,this.adminName,this.adminPhone,this.coverage,dbPoint,
+								new nhn.api.map.Circle({
+									strokeColor : "red",
+									strokeOpacity : 0.8,
+									strokeWidth : 1,
+									fillColor : "blue",
+									fillOpacity : 0.3})
+									));
+							cctvSearchNum++;
+						});
+						for(var i=0; i<cctvSearchNum; i++){
+							$("#searchList").append("<li><a id=\"sear"+i+"\" href=\"#\">"+searchObjects[i].getAddr()+"</a></li>");
+						}
+						$("#searchList").css("display","none");
+					
+						$("#searchList").css("left",curX+"px");
+						$("#searchList").css("top",curY+"px");
+						$("#searchList").css("display","block");
+						addSearchListener();
+					}
+					, error : function(x,e,th){
+						alert(th);
+					}
+				});
 			}
 
 			function getNaverText(){
@@ -277,11 +355,25 @@
 						cctvObjects[i].setAdminName(adminName);
 						cctvObjects[i].setAdminPhone(adminPhone);
 						cctvObjects[i].setCoverage(coverage);
+						cctvObjects[i].setPoint(clickPoint);
 						cctvObjects[i].getMarker().setPoint(clickPoint);
 						cctvObjects[i].getCircle().setRadius(coverage);
 						cctvObjects[i].getCircle().setCenterPoint(clickPoint);
 						cctvObjects[i].getMarker().setVisible(true);
-						cctvObjects[i].getCircle().setVisible(true);
+						
+						//Update Query
+						$.ajax({
+							type: 'POST'
+							, url : "dbQueryPage.jsp?command=modify&num="+cctvObjects[i].getNum()
+								+ "&addr="+cctvObjects[i].getAddr() + "&markerX=" +cctvObjects[i].getPoint().getX()
+								+ "&markerY=" + cctvObjects[i].getPoint().getY() + "&adminName=" + cctvObjects[i].getAdminName()
+								+ "&adminPhone=" + cctvObjects[i].getAdminPhone() + "&coverage=" + cctvObjects[i].getCoverage()
+								+ "&PK=" + cctvObjects[i].getPK()
+							, success : function(data){
+									;
+								}
+						});
+						
 						return;
 					}
 				}
@@ -300,7 +392,21 @@
 				cctvObjects[markerNum].getCircle().setCenterPoint(clickPoint);
 				cctvObjects[markerNum].getCircle().setRadius(coverage);
 				oMap.addOverlay(cctvObjects[markerNum].getCircle());
+				
+				//INSERT Query
+				$.ajax({
+					type: 'POST'
+					, url : "dbQueryPage.jsp?command=insert&num="+cctvObjects[markerNum].getNum()
+							+ "&addr="+cctvObjects[markerNum].getAddr() + "&markerX=" +cctvObjects[markerNum].getPoint().getX()
+							+ "&markerY=" + cctvObjects[markerNum].getPoint().getY() + "&adminName=" + cctvObjects[markerNum].getAdminName()
+							+ "&adminPhone=" + cctvObjects[markerNum].getAdminPhone() + "&coverage=" + cctvObjects[markerNum].getCoverage()
+							+ "&PK=" + cctvObjects[markerNum].getPK()
+					, success : function(data){
+						;
+					}
+				});
 				markerNum++;
+				PK++;//다음 추가 될 Primary Key 추가
 			}
 			
 			var modifyIndex = -1;
@@ -309,7 +415,7 @@
 			var modi_adminName;
 			var modi_adminPhone;
 			var modi_coverage;
-			
+			var modi_window;
 			
 			function modifyCCTV(){
 				modifyIndex = curContext;
@@ -322,18 +428,34 @@
 				var flag;
 				flag = "width=500, ";
 				flag += "height=420";
-				window.open('cctvPopUpModi.jsp',"CCTV 수정", flag);
+				modi_window = window.open('cctvPopUpModi.jsp',"CCTV 수정", flag);
 			}
 			
 			function setCCTV(num, addr, adminName, adminPhone, coverage){
+				modi_window.close();
 				cctvObjects[modifyIndex].setNum(Number(num));
 				cctvObjects[modifyIndex].setAddr(addr);
 				cctvObjects[modifyIndex].setAdminName(adminName);
 				cctvObjects[modifyIndex].setAdminPhone(adminPhone);
 				cctvObjects[modifyIndex].setCoverage(coverage);
+				$.ajax({
+					type: 'POST'
+					, url : "dbQueryPage.jsp?command=modify&num="+cctvObjects[modifyIndex].getNum()
+						+ "&addr="+cctvObjects[modifyIndex].getAddr() + "&markerX=" +cctvObjects[modifyIndex].getPoint().getX()
+						+ "&markerY=" + cctvObjects[modifyIndex].getPoint().getY() + "&adminName=" + cctvObjects[modifyIndex].getAdminName()
+						+ "&adminPhone=" + cctvObjects[modifyIndex].getAdminPhone() + "&coverage=" + cctvObjects[modifyIndex].getCoverage()
+						+ "&PK=" + cctvObjects[modifyIndex].getPK()
+					, success : function(data){
+							;
+						}
+				});
 				cctvObjects[modifyIndex].getCircle().setRadius(Number(coverage));
 				cctvObjects[modifyIndex].getMarker().setVisible(true);
 				cctvObjects[modifyIndex].getCircle().setVisible(true);
+				
+				//Update DB
+				
+				
 			}
 			
 			function deleteCCTV(){
@@ -343,7 +465,20 @@
 					cctvObjects[index].setNum(Number(-1));
 					cctvObjects[index].setAddr("-");
 					cctvObjects[index].getMarker().setVisible(false);
-					cctvObjects[index].getCircle().setVisible(false);
+					cctvObjects[index].getCircle().setRadius(0);
+					mapInfoWindow.setVisible(false);
+					
+					$.ajax({
+					type: 'POST'
+					, url : "dbQueryPage.jsp?command=modify&num=-1"
+						+ "&addr=-" + "&markerX=" +cctvObjects[index].getPoint().getX()
+						+ "&markerY=" + cctvObjects[index].getPoint().getY() + "&adminName=" + cctvObjects[index].getAdminName()
+						+ "&adminPhone=" + cctvObjects[index].getAdminPhone() + "&coverage=" + cctvObjects[index].getCoverage()
+						+ "&PK=" + cctvObjects[index].getPK()
+					, success : function(data){
+							;
+						}
+					});
 				}else{
 					return;
 				}
@@ -354,8 +489,6 @@
 			var isContextVisible = false;
 			
 			var contextEvent = function(oCustomEvent){
-				
-				//alert("X : "+curX+" Y : "+curY);
 				var pos = oCustomEvent.point;//Get Position of Marker
 				clickPoint = new nhn.api.map.TM128(pos.getX(),pos.getY()); //Get position of Map
 				var oTarget = oCustomEvent.target;
@@ -380,8 +513,17 @@
 			
 			var hideContext = function(){
 				$(".MarkerContextMenu").css("display","none");
+				$("#searchList").css("display","none");
 				isContextVisible = false;
 			}
+			
+	//		function cctvNumValidationCheck(num){
+	//			for(var i=0; i<markerNum; i++){
+	//				if(Number(cctvObjects[i].getNum()) == Number(num))
+	//					return false;
+	//			}
+	//			return true;
+	//		}
 			
 		</script>
 		<link href="StyleSheet.css" rel="stylesheet" type="text/css" />
@@ -398,7 +540,7 @@
 
 		<table>
 		<tr>
-			<td>CCTV / TAXI <input type="text" id='cctvTaxi' value="" /></td>
+			<td>CCTV / TAXI 검색 <input type="text" id='cctvTaxi' value="" /></td>
 			<td><form name="cctvForm" method="post" action="" onsubmit="getCctvText(); return false;" >
 				<input type="submit" id="searchTextBtn" value="검색" /></form></td>
 		</tr>
@@ -434,13 +576,17 @@
 							var naverObj = event.data.param1;
 							var movePoint = new nhn.api.map.TM128(naverObj.getX(), naverObj.getY());
 							oMap.setCenter(movePoint);	//맵 위치 이동
-							
-							//cctvMarker.setPoint(movePoint);	//마커표시
-							//oMap.addOverlay(cctvMarker);
-							
-							//var oLabel = new nhn.api.map.MarkerLabel();
-							//oMap.addOverlay(oLabel);
-							//oLabel.setVisible(true, cctvMarker);
+						});
+					}
+				}
+				
+				function addSearchListener(){
+					for(var i=0; i<cctvSearchNum; i++){
+						$("#sear"+i).bind("click",{param1 : searchObjects[i] } ,function(event) {
+							var searchObj = event.data.param1;
+							var movePoint = new nhn.api.map.TM128(searchObj.getPoint().getX(), searchObj.getPoint().getY());
+							oMap.setCenter(movePoint);
+							$("#searchList").css("display","none");
 						});
 					}
 				}
@@ -454,6 +600,9 @@
 		<ul id=\"CM1\" class="MarkerContextMenu">
 			<li><a id="modifyMarker" href="#">수정</a></li>
 			<li><a id="deleteMarker" href="#">삭제</a></li>
+		</ul>
+		
+		<ul id="searchList" class="cctvSearchResult">
 		</ul>
 		
 	</body>

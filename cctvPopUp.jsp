@@ -13,13 +13,19 @@
 				}
 				
 				var num = $("#num").val();
+				
+				if(!window.opener.cctvNumValidationCheck(num)){
+					alert("중복되는 CCTV NUM이 존재합니다.");
+					return;
+				}
+				
 				var addr = $("#addr").val();
 				var adminName = $("#adminName").val();
 				var adminPhone = $("#adminPhone").val();
 				var coverage = $("#coverage").val();
 				
 				window.opener.makeMarker(num,addr,adminName,adminPhone,coverage);
-				window.close();
+				self.close();
 			}
 			
 			function validationCheck(){

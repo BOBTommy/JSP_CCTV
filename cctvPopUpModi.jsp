@@ -13,7 +13,9 @@
 				$("#adminPhone").val(window.opener.modi_adminPhone);
 				$("#coverage").val(window.opener.modi_coverage);
 			});
-		
+			
+			var _num = 0; //수정 하기 이전 원래 NUM 필드 값
+			
 			function saveObject(){
 				var flag = validationCheck();
 				
@@ -22,6 +24,12 @@
 				}
 				
 				var num = $("#num").val();
+				
+				if(!window.opener.cctvNumValidationCheck(num)){
+					alert("중복되는 CCTV NUM이 존재합니다.");
+					return;
+				}
+				
 				var addr = $("#addr").val();
 				var adminName = $("#adminName").val();
 				var adminPhone = $("#adminPhone").val();
@@ -33,6 +41,7 @@
 			
 			function validationCheck(){
 				var num = $("#num").val();
+				_num = num;
 				var addr = $("#addr").val();
 				var adminName = $("#adminName").val();
 				var adminPhone = $("#adminPhone").val();
